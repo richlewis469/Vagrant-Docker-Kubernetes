@@ -23,7 +23,7 @@ yum-config-manager --enable ol7_developer_EPEL
 #yum-config-manager --enable ol7_openstack40
 #yum-config-manager --enable ol7_openstack40_extras
 #yum-config-manager --enable ol7_MODRHCK
-#yum-config-manager --enable ol7_preview
+yum-config-manager --enable ol7_preview
 
 setenforce Permissive
 sed -i 's/=enforcing/=permissive/g' /etc/selinux/config /etc/selinux/config

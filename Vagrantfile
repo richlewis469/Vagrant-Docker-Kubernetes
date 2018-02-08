@@ -55,4 +55,7 @@ Vagrant.configure("2") do |config|
   # Enable provisioning of Docker with a shell script.
   config.vm.provision "shell", path: "./vagrant-shell/docker.sh"
 
+  # Enable provisioning of Kubernetes with a shell script.
+  #config.vm.provision "shell", path: "./vagrant-shell/kubernetes.sh"
+
 end
