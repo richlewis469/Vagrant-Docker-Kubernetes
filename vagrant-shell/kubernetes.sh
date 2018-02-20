@@ -9,6 +9,9 @@ systemctl restart firewalld
 iptables  -P FORWARD ACCEPT
 ip6tables -P FORWARD ACCEPT
 
+iptables-save > /etc/sysconfig/iptables
+ip6tables-save > /etc/sysconfig/ip6tables
+
 firewall-cmd --add-masquerade --permanent
 firewall-cmd --add-port=10250/tcp --permanent
 firewall-cmd --add-port=8472/udp --permanent

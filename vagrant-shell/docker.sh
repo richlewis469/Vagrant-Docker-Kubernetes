@@ -9,18 +9,24 @@ yum install docker-engine \
 systemctl start docker
 systemctl enable docker
 
+cat >> /etc/docker/daemon.json << EOF
+{
+  "ipv6": true
+}
+EOF
+
+systemctl reload docker
+
 systemctl status docker
 
 uname -a
 ip addr show
 
-docker pull oraclelinux:7.4
-docker images --all
-docker run --name docker-test oraclelinux:7.4 \
-  /bin/bash -c "echo 'Begin Docker Run'; uname -a; ip addr show; date; echo 'End Docker Run'"
-docker ps --all
-docker rm  docker-test
-docker rmi oraclelinux:7.4
+usermod -aG docker vagrant
+
+docker run --name hello-world hello-world
+docker rm hello-world
+docker rmi hello-world
 
 date +"%F %T"
 echo "Exiting Docker Provisoning"
