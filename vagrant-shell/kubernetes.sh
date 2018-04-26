@@ -4,7 +4,12 @@ echo "Entering Kubernetes Provisoning"
 date +"%F %T"
 # Setup per https://docs.oracle.com/cd/E52668_01/E88884/html/ol_about_kubernetes.html
 
-systemctl restart firewalld
+yum-config-manager --enable ol7_addons
+
+#docker login container-registry.oracle.com
+
+systemctl start firewalld
+systemctl enable firewalld
 
 iptables  -P FORWARD ACCEPT
 ip6tables -P FORWARD ACCEPT
@@ -39,12 +44,20 @@ setenforce Permissive
 sed -i 's/=enforcing/=permissive/g' /etc/selinux/config /etc/selinux/config
 
 yum install kubeadm --assumeyes
-docker login container-registry.oracle.com
+
+echo "--Setup the environment variables--"
+source /vagrant-share/vagrant-docker/env-vars.sh
+
+docker login -u $OCR_VAR_LOGIN -p $OCR_VAR_PASSWORD container-registry.oracle.com
+
 kubeadm-setup.sh up
 
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
+export KUBECONFIG=$HOME/.kube/config
+# echo 'export KUBECONFIG=$HOME/.kube/config' >> $HOME/.bashrc
+echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 sleep 180 # Sleep 3m to allow container creation.
 kubectl get pods -n kube-system
@@ -53,7 +66,19 @@ kubectl get nodes
 kubectl describe nodes
 kubectl get pods
 
-kubectl run hello-world --image=nginxdemos/hello --port=80
+#Kubernetes with Proxy server
+#cat >> /etc/systemd/system/docker.service.d/http-proxy.conf << EOF
+#[Service]
+#Environment="HTTP_PROXY=http://adc-proxy.oracle.com:80"
+#Environment="HTTPS_PROXY=https://adc-proxy.oracle.com:80"
+#EOF
+#systemctl daemon-reload; systemctl restart docker
+
+#kubectl run hello-world --image=nginxdemos/hello --port=8080
+kubectl run hello-world --image=nginxdemos/hello
+#kubectl expose deployment hello-world --type="LoadBalancer"
+kubectl expose deployment hello-world
+kubectl get services hello-world
 
 date +"%F %T"
 echo "Exiting Kubernetes Provisoning"
